@@ -311,18 +311,15 @@
   .zoom-img-wrap img {
     width: 100%;
     display: block;
-    border: 2px solid var(--blue-dark);
-    box-shadow: 5px 5px 0 var(--blue-dark);
     cursor: zoom-in;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.12s ease-out;
     transform-origin: center center;
     position: relative;
     z-index: 1;
   }
-  .zoom-img-wrap:hover img {
+  .zoom-img-wrap img.zoomed {
     transform: scale(2.2);
     z-index: 100;
-    box-shadow: 10px 10px 0 var(--blue-dark);
   }
 
   /* TOPIC GRID */
@@ -436,14 +433,9 @@
     display: inline-block; margin-top: 10px; padding: 8px 18px;
     background: var(--orange); color: var(--ink); border-radius: 0;
     border: 2px solid var(--blue-dark);
-    box-shadow: 4px 4px 0 var(--blue-dark);
     font-size: 12px; text-decoration: none; letter-spacing: 0.05em;
     font-weight: 900;
     transition: all 0.1s;
-  }
-  .btn:active {
-    box-shadow: 1px 1px 0 var(--ink);
-    transform: translate(3px, 3px);
   }
 
   /* DIVIDER */
@@ -924,6 +916,34 @@
 <script>
   const slides = document.querySelectorAll('.slide');
   const navLinks = document.querySelectorAll('.pagenav a');
+
+  // Mouse-follow zoom for images
+  document.querySelectorAll('.zoom-img-wrap img').forEach(img => {
+    img.addEventListener('mousemove', e => {
+      const rect = img.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      img.style.transformOrigin = `${x}% ${y}%`;
+      img.classList.add('zoomed');
+    });
+    img.addEventListener('mouseleave', () => {
+      img.classList.remove('zoomed');
+      img.style.transformOrigin = 'center center';
+    });
+    // Touch support for mobile
+    img.addEventListener('touchstart', e => {
+      const rect = img.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = ((touch.clientX - rect.left) / rect.width) * 100;
+      const y = ((touch.clientY - rect.top) / rect.height) * 100;
+      img.style.transformOrigin = `${x}% ${y}%`;
+      img.classList.add('zoomed');
+    }, { passive: true });
+    img.addEventListener('touchend', () => {
+      img.classList.remove('zoomed');
+      img.style.transformOrigin = 'center center';
+    });
+  });
 
   // Build tooltip labels
   navLinks.forEach(link => {
